@@ -2,8 +2,19 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+const userRouter = require('./routes/users');
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const logger = (req,res,next) =>{
+    console.log(`${req.method} : Request received on ${req.url}`);
+    next();
+}
+
+app.use(logger);
+app.use(userRouter);
+
 
 app.listen(port, (err) => {
     if (err) {
