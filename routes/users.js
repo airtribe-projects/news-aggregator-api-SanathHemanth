@@ -1,47 +1,37 @@
 const express = require("express");
 const router = express.Router();
-const fs = require("fs");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
+const users = [];
 
-router.post("/users/signup",(req,res) =>{
-    console.log(req.body);
-    const userData = req.body;
-    if(!userData.name | !userData.email | !userData.password){
-        res.status(400).send({message : "Invalid request"});
+router.post("/users/signup",async (req,res) =>{
+    const {name,email,password,preferences} = req.body;
+    if(!name || !email || !password || !preferences){
+        return res.status(400).send({message : 'Invalid data'});
     }
-    else{
-        fs.readFile('./users.json', 'utf-8',(err,jsonSrting)=>{
-
-            if(err){
-                console.log("Error in reading file: ",err);
-            }
-    
-            try{
-                const jsonData = JSON.parse(jsonSrting);
-                if(Array.isArray(jsonData)){
-                    jsonData.push(req.body);
-                }
-                else{
-                    console.log("JSON data not an array");
-                    return;
-                }
-    
-                const updatedJson = JSON.stringify(jsonData,null,2);
-                fs.writeFile('./users.json',updatedJson,(err)=>{
-                    if(err){
-                        console.log("Error in writing to JSON file: ",err);
-                    }
-                    else{
-                        console.log("Data added successfully");
-                    }
-                });
-            }catch(pasrseErr){
-                console.log('Error in pasrsing JSON: ',pasrseErr);
-            }
-        });
-        res.status(200).send("Signup successfull");
-    }
-    
+    const hashedpassword = await bcrypt.hash(password,10);
+    const user ={name,email,hashedpassword,preferences};
+    users.push(user);
+    console.log(users);
+    res.send('Signup successful');
 });
+
+router.post("/users/login",async (req,res)=>{
+    const {email,password} = req.body;
+    const user = users.find(user=> user.email ===email);
+    if(!user){
+        return res.status(401).send({message : 'Invalid credentials'});
+    }
+    const passwordVaild = await bcrypt.compare(password,user.hashedpassword);
+    console.log(passwordVaild);
+    if(!passwordVaild){
+        return res.status(401).send({message : 'Invalid credentials'});
+    }
+    const token = jwt.sign({email : user.email},process.env.JWT_SECRET);
+    //console.log(token);
+    res.send({token});
+});
+
 
 module.exports = router;
