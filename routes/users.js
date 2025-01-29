@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const verifyUser = require('../middleware/verifyUser');
 
 const users = [];
 
@@ -31,6 +32,29 @@ router.post("/users/login",async (req,res)=>{
     const token = jwt.sign({email : user.email},process.env.JWT_SECRET);
     //console.log(token);
     res.send({token});
+});
+
+//router.use(verifyUser);
+
+router.get("/users/preferences",verifyUser, (req,res)=>{
+    const {email} = req.user;
+    const user = users.find(user=> user.email ===email);
+    if(!user){
+        return res.send({message:'Invalid user'});
+    }
+    res.send({preferences : user.preferences});
+});
+
+router.put("/users/preferences",verifyUser, (req,res)=>{
+    const {email} = req.user;
+    const userData = req.body;
+    const user = users.find(user => user.email === email);  
+    if(!user){
+        return res.send({message : 'Invalid user'});
+    }
+    user.preferences = userData.preferences;
+    res.send({message : 'Preferences updated'});
+    console.log(user.preferences);
 });
 
 
