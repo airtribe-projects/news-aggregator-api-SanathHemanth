@@ -4,6 +4,7 @@ const port = 3000;
 require('dotenv').config();
 
 const userRouter = require('./routes/users');
+const newsRouter = require('./routes/news');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -14,7 +15,8 @@ const logger = (req,res,next) =>{
 }
 
 app.use(logger);
-app.use(userRouter);
+app.use(userRouter.router);
+app.use(newsRouter);
 
 
 app.listen(port, (err) => {

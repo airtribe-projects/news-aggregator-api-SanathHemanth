@@ -54,8 +54,7 @@ router.put("/users/preferences",verifyUser, (req,res)=>{
     }
     user.preferences = userData.preferences;
     res.send({message : 'Preferences updated'});
-    console.log(user.preferences);
 });
 
 
-module.exports = router;
+module.exports = { router ,users };
