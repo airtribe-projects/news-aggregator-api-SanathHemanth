@@ -1,9 +1,23 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+require('dotenv').config();
+
+const userRouter = require('./routes/users');
+const newsRouter = require('./routes/news');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const logger = (req,res,next) =>{
+    console.log(`${req.method} : Request received on ${req.url}`);
+    next();
+}
+
+app.use(logger);
+app.use(userRouter.router);
+app.use(newsRouter);
+
 
 app.listen(port, (err) => {
     if (err) {
