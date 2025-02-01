@@ -20,7 +20,8 @@ router.get('/news',verifyUser, async (req,res)=>{
                 apiKey : apiKey
             }
         });
-        console.log('News: ',response.data.articles);
+        //console.log('News: ',response.data.articles);
+        res.send(response.data.articles);
     }catch(error){
         console.log('error in fethching news: ',error.response ? error.response.data : error.message);
     }    
